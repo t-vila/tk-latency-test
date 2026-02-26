@@ -8,8 +8,7 @@ import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { performance } from "node:perf_hooks";
 import https from "node:https";
 
-const PAYLOAD =
-  "c78153c9cef32b3b5817a1aa782a52b1752eec36beb401c5fec54552d8174c91";
+const PAYLOAD =  "hello from Turnkey !";
 
 const REQUIRED = [
   "TURNKEY_API_PRIVATE_KEY",
@@ -36,6 +35,13 @@ const signWith = process.env.TURNKEY_SIGN_WITH!;
 const iterations = parseInt(process.env.ITERATIONS || "10", 10);
 const baseUrl = "https://api.turnkey.com";
 
+// Detect curve from signWith format:
+//   0x-prefixed address → Ethereum/secp256k1 → HASH_FUNCTION_SHA256 (Turnkey hashes for us)
+//   anything else       → Ed25519 (Solana)   → HASH_FUNCTION_NOT_APPLICABLE
+const hashFunction = signWith.startsWith("0x")
+  ? ("HASH_FUNCTION_SHA256" as const)
+  : ("HASH_FUNCTION_NOT_APPLICABLE" as const);
+
 interface HttpTiming {
   dns?: number;
   tcp?: number;
@@ -51,6 +57,7 @@ async function main(): Promise<void> {
   console.log(`  Target:     ${baseUrl}`);
   console.log(`  Org:        ${organizationId}`);
   console.log(`  Sign with:  ${signWith}`);
+  console.log(`  Curve:      ${hashFunction === "HASH_FUNCTION_SHA256" ? "secp256k1/P-256 (ECDSA)" : "Ed25519"}`);
   console.log(`  Iterations: ${iterations}`);
   console.log();
 
@@ -66,8 +73,8 @@ async function main(): Promise<void> {
     parameters: {
       signWith,
       payload: PAYLOAD,
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL" as const,
-      hashFunction: "HASH_FUNCTION_NO_OP" as const,
+      encoding: "PAYLOAD_ENCODING_TEXT_UTF8" as const,
+      hashFunction,
     },
   });
 
