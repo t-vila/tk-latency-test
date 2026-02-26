@@ -79,7 +79,8 @@ async function main(): Promise<void> {
   });
 
   // --- Warmup ---
-  process.stdout.write("Warmup... ");
+  const warmTs = new Date().toISOString();
+  process.stdout.write(`Warmup... ${warmTs}  `);
   const warmStart = performance.now();
   await client.signRawPayload(signParams());
   console.log(`${(performance.now() - warmStart).toFixed(0)}ms\n`);
