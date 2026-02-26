@@ -159,8 +159,8 @@ async function rawHttpTiming(): Promise<HttpTiming> {
     parameters: {
       signWith,
       payload: PAYLOAD,
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-      hashFunction: "HASH_FUNCTION_NO_OP",
+      encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+      hashFunction,
     },
   });
 
